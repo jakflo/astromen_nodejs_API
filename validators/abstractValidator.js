@@ -1,11 +1,12 @@
 class AbstractValidator {
+    _customMessageUsed = false;
+    
     constructor() {
         this.valueName = '';
-        this.customMessageUsed = false;
     }    
     
     getErrorMessage() {
-        if (this.customMessageUsed) {
+        if (this._customMessageUsed) {
             return this.deafaultMessage; 
         }
         if (this.valueName === '') {
@@ -19,7 +20,7 @@ class AbstractValidator {
     
     setCustomMessage(message) {
         this.deafaultMessage = message;
-        this.customMessageUsed = true;
+        this._customMessageUsed = true;
         return this;
     }
 }

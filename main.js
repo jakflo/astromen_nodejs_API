@@ -9,27 +9,35 @@ var cors = require('cors');
 var app = new expr();
 app.use(expr.json());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
 var getFormsValidators = new GetFormsValidators();
 
 var conf = {
   host: "localhost",
   user: "root",
-  password: "12345",
-  database: "astro"
+  password: "mysql",
+  database: "astromen"
 };
 
 var dobo = new DbWrap(conf);
 var model = new Model(dobo);
 
+function sendValidationFailed(resp, validatorsMulti) {
+    resp.status(400).send({result: 'failed', validationErrors: validatorsMulti.errors});
+}
+
+function sendServerError(resp, err) {
+    resp.status(500).send({error: err});
+}
+
 app.get('/get_all', (req, resp) => {
-    model.getAll()
-            .then((result) => {
-                resp.send({result: result});
+        model.getAll()
+        .then((result) => {
+            resp.send({result: result});
             })
             .catch((err) => {
-                resp.send({error: err});
+                resp.status(500).send({error: err});
             })
             ;
 });
@@ -40,7 +48,7 @@ app.get('/is_exists', (req, resp) => {
     var validatorsMulti = getFormsValidators.getIsExists();
     var validationPassed = validatorsMulti.validate(params);
     if (!validationPassed) {
-        resp.send({result: false, validationErrors: validatorsMulti.errors});
+        sendValidationFailed(resp, validatorsMulti);
     }
     else {
         model.isExists(params)
@@ -48,7 +56,7 @@ app.get('/is_exists', (req, resp) => {
                 resp.send({result: result});
             })
             .catch((err) => {
-                resp.send({error: err});
+                resp.status(500).send({error: err});
             })
             ;
     }   
@@ -59,7 +67,7 @@ app.post('/new', (req, resp) => {
     var validatorsMulti = getFormsValidators.getNew();
     var validationPassed = validatorsMulti.validate(params);
     if (!validationPassed) {
-        resp.send({result: 'failed', validationErrors: validatorsMulti.errors});
+        sendValidationFailed(resp, validatorsMulti);
     }
     else {
         model.addNew(params)
@@ -67,7 +75,7 @@ app.post('/new', (req, resp) => {
                 resp.send({result: 'ok', newId: id});
             })
             .catch((err) => {
-                resp.send({result: 'failed', error: err});
+                resp.status(500).send({error: err});
             });
     }
 });
@@ -77,7 +85,7 @@ app.put('/edit', (req, resp) => {
     var validatorsMulti = getFormsValidators.getEdit();
     var validationPassed = validatorsMulti.validate(params);
     if (!validationPassed) {
-        resp.send({result: 'failed', validationErrors: validatorsMulti.errors});
+        sendValidationFailed(resp, validatorsMulti);
     }
     else {
         model.modify(params)
@@ -85,7 +93,7 @@ app.put('/edit', (req, resp) => {
                 resp.send({result: 'ok'});
             })
             .catch((err) => {
-                resp.send({result: 'failed', error: err});
+                resp.status(500).send({error: err});
             });
     }
 });
@@ -95,7 +103,7 @@ app.delete('/delete/:id', (req, resp) => {
     var validatorsMulti = getFormsValidators.getId();
     var validationPassed = validatorsMulti.validate(params);
     if (!validationPassed) {
-        resp.send({result: 'failed', validationErrors: validatorsMulti.errors});
+        sendValidationFailed(resp, validatorsMulti);
     }
     else {
         model.del(params)
@@ -103,10 +111,10 @@ app.delete('/delete/:id', (req, resp) => {
                 resp.send({result: 'ok'});
             })
             .catch((err) => {
-                resp.send({result: 'failed', error: err});
+                resp.status(500).send({error: err});
             });
     }
 });
 
-app.listen(80);
+app.listen(3030);
 
