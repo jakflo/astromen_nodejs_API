@@ -37,7 +37,7 @@ app.get('/get_all', (req, resp) => {
             resp.send({result: result});
             })
             .catch((err) => {
-                resp.status(500).send({error: err});
+                sendServerError(resp, err);
             })
             ;
 });
@@ -56,7 +56,7 @@ app.get('/is_exists', (req, resp) => {
                 resp.send({result: result});
             })
             .catch((err) => {
-                resp.status(500).send({error: err});
+                sendServerError(resp, err);
             })
             ;
     }   
@@ -75,7 +75,7 @@ app.post('/new', (req, resp) => {
                 resp.send({result: 'ok', newId: id});
             })
             .catch((err) => {
-                resp.status(500).send({error: err});
+                sendServerError(resp, err);
             });
     }
 });
@@ -93,7 +93,7 @@ app.put('/edit', (req, resp) => {
                 resp.send({result: 'ok'});
             })
             .catch((err) => {
-                resp.status(500).send({error: err});
+                sendServerError(resp, err);
             });
     }
 });
@@ -111,7 +111,7 @@ app.delete('/delete/:id', (req, resp) => {
                 resp.send({result: 'ok'});
             })
             .catch((err) => {
-                resp.status(500).send({error: err});
+                sendServerError(resp, err);
             });
     }
 });
